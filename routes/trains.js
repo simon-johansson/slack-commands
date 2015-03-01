@@ -18,15 +18,11 @@ router.get('/', function(req, res) {
     var south = '*Southbound*\n'; var north = '\n*Northbound*\n';
     var departures = data.map(function(el, i) {
       var train = el.DisplayTime + ' - ' + el.Destination + '\n';
-      if (el.JourneyDirection === 1)
-        south += train;
-      else
-        north += train;
+      if (el.JourneyDirection === 1) south += train;
+      else north += train;
     });
 
-    res
-      .header("Content-Type", "application/json; charset=utf-8")
-      .send(south + north);
+    res.send(south + north);
 
   });
 });
