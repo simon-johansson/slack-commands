@@ -12,12 +12,18 @@ var router = express.Router();
 router.get('/', function(req, res) {
 
   var uppereastURL = 'http://uppereast.kvartersmenyn.se/';
+  var scandicURL = 'http://victoriatower.kvartersmenyn.se/';
   var sabisURL = 'http://www.sabis.se/nordic-forum/dagens-lunch-v9/';
   var today = new Date().getDay() - 1;
 
   async.series([
     function(callback) {
       request(uppereastURL, function(err, response, html) {
+        callback(err, html);
+      });
+    },
+    function(callback) {
+      request(scandicURL, function(err, response, html) {
         callback(err, html);
       });
     },
@@ -30,7 +36,47 @@ router.get('/', function(req, res) {
   function(err, results) {
     if (err) return res.send(config.errorMsg);
 
-    var sabis = cheerio.load(results[1]);
+    var upper = cheerio.load(results[0]);
+    var upperMenu = "*Upper East*\n";
+    upper('.menyn td > p').first().filter(function() {
+      var data = upper(this).text();
+      var days = [];
+      menu = s(data).words(/MÅNDAG|TISDAG|ONSDAG|TORSDAG|FREDAG/)[0];
+      menu = menu
+              .split('Caesarsallad med kyckling, skaldjur eller varmrökt lax')
+              .join('')
+              .split(')');
+
+      menu.forEach(function(el, i) {
+        el = el.trim() + ')';
+        if (!el) return;
+        if (i >= 0 && i >= (today * 3) && i <= (today * 3) + 2) days.push(el);
+      });
+
+      upperMenu += days.length ?
+        days.join('\n') + '\nCaesarsallad med kyckling, skaldjur eller varmrökt lax' :
+        'No lunch today';
+    });
+
+    var scandic = cheerio.load(results[1]);
+    var scandicMenu = "*Scandic Victoria Tower*";
+    scandic('.menyn td').first().filter(function() {
+      var data = scandic(this);
+      var days = [];
+      data.find('p').each(function(i, el) {
+        var string = scandic(this).html().split('<br>').join('\n');
+        var cleaned = s(scandic(string).text())
+                        .words(/Måndag|Tisdag|Onsdag|Torsdag|Fredag/)
+                        .join('');
+        i <= 4 ? days.push(cleaned): void 0;
+      });
+
+      scandicMenu += days[today] ?
+        days[today] :
+        '\nNo lunch today';
+    });
+
+    var sabis = cheerio.load(results[2]);
     var sabisMenu = "*Nordic Forum (Sabis)*\n";
     sabis('.lunch-data').filter(function() {
       var data = sabis(this).find('.lunch-day-dishes');
@@ -48,35 +94,7 @@ router.get('/', function(req, res) {
         'No lunch today';
     });
 
-    var upper = cheerio.load(results[0]);
-    var upperMenu = "*Upper East*\n";
-    upper('.menyn td > p').first().filter(function() {
-      var menu = upper(this).text();
-      var days = [ [], [], [], [], [] ];
-      menu = s(menu).words(/MÅNDAG|TISDAG|ONSDAG|TORSDAG|FREDAG/)[0];
-      menu = menu
-              .split('Caesarsallad med kyckling, skaldjur eller varmrökt lax')
-              .join('')
-              .split(')');
-
-      menu.forEach(function(el, i) {
-        el = el.trim();
-        if (!el) return;
-        if (i <= 2) days[0].push(el + ')');
-        else if (i > 2 && i <= 5) days[1].push(el + ')');
-        else if (i > 5 && i <= 8) days[2].push(el + ')');
-        else if (i > 8 && i <= 11) days[3].push(el + ')');
-        else if (i > 11) days[4].push(el + ')');
-      });
-
-      upperMenu += days[today] ?
-        days[today].join('\n') + '\nCaesarsallad med kyckling, skaldjur eller varmrökt lax' :
-        'No lunch today';
-    });
-
-    res
-      .header("Content-Type", "application/json; charset=utf-8")
-      .send(upperMenu + '\n\n' + sabisMenu + '\n');
+    res.send(upperMenu + '\n\n' + scandicMenu + '\n\n' + sabisMenu + '\n');
 
   });
 });
