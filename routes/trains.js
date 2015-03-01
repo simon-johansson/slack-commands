@@ -12,6 +12,8 @@ router.get('/', function(req, res) {
   var url = 'http://api.sl.se/api2/realtimedepartures.json?key=' + apiKey + '&siteid=' + helenelundSiteID;
 
   request(url, function(err, response, html) {
+    if (err) return res.send(config.errorMsg);
+
     var data = JSON.parse(response.body).ResponseData.Trains;
     var south = '*Southbound*\n'; var north = '\n*Northbound*\n';
     var departures = data.map(function(el, i) {

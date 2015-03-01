@@ -22,6 +22,7 @@ router.post('/', function(req, res) {
   };
 
   request(options, function(err, response, html) {
+    if (err) return res.send(config.errorMsg);
 
     // No more integrations available at the moment, need to
     // pay for Slack in order to be able to send JSON

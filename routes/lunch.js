@@ -5,6 +5,7 @@ var cheerio = require('cheerio');
 var async = require('async');
 var s = require("underscore.string");
 
+var config = require('../config.js');
 var router = express.Router();
 
 /* GET home page. */
@@ -27,7 +28,7 @@ router.get('/', function(req, res) {
     }
   ],
   function(err, results) {
-    if (err) console.log(err);
+    if (err) return res.send(config.errorMsg);
 
     var sabis = cheerio.load(results[1]);
     var sabisMenu = "*Nordic Forum (Sabis)*\n";
