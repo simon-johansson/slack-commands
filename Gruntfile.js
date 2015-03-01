@@ -27,7 +27,7 @@ module.exports = function(grunt) {
             "public/**",
             "routes/**",
             "views/**",
-            "app.js",
+            "*.js",
             "*.json",
           ]
         },
@@ -63,7 +63,7 @@ module.exports = function(grunt) {
    */
   grunt.registerTask('deploy', [
     'sftp:deploy',
-    // 'sshexec:start',
+    'sshexec:start',
   ]);
 
   /**
