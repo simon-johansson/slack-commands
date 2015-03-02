@@ -41,7 +41,7 @@ router.get('/', function(req, res) {
     upper('.menyn td > p').first().filter(function() {
       var data = upper(this).text();
       var days = [];
-      menu = s(data).words(/MÅNDAG|TISDAG|ONSDAG|TORSDAG|FREDAG/)[0];
+      menu = s(data).words(/Måndag|Tisdag|Onsdag|Torsdag|Fredag/)[0];
       menu = menu
               .split('Caesarsallad med kyckling, skaldjur eller varmrökt lax')
               .join('')
@@ -60,21 +60,35 @@ router.get('/', function(req, res) {
 
     var scandic = cheerio.load(results[1]);
     var scandicMenu = "*Scandic Victoria Tower*";
-    scandic('.menyn td').first().filter(function() {
-      var data = scandic(this);
-      var days = [];
-      data.find('p').each(function(i, el) {
-        var string = scandic(this).html().split('<br>').join('\n');
-        var cleaned = s(scandic(string).text())
-                        .words(/Måndag|Tisdag|Onsdag|Torsdag|Fredag/)
-                        .join('');
-        i <= 4 ? days.push(cleaned): void 0;
-      });
+      scandic('.menyn td').first().filter(function() {
+        var data = scandic(this);
+        var days = [];
+        data.find('p').each(function(i, el) {
+          try {
+            var string = scandic(this).html().split('<br>').join('\n');
+            var cleaned = s(scandic(string).text())
+                            .words(/Måndag|Tisdag|Onsdag|Torsdag|Fredag/)
+                            .join('');
+            days.push(cleaned);
+          } catch (err){
+            console.log(err);
+          }
+        });
 
-      scandicMenu += days[today] ?
-        days[today] :
-        '\nNo lunch today';
-    });
+        if (!days.length) {
+          scandicMenu += '\nSomething went wrong, could not get menu';
+        } else {
+
+          // Remove first item, which for the time being is "AFFÄRSLUNCH 295:- ..."
+          days.shift();
+          // Limit to five days
+          days.length = 5;
+
+          scandicMenu += days[today] ?
+            days[today] :
+            '\nNo lunch today';
+        }
+      });
 
     var sabis = cheerio.load(results[2]);
     var sabisMenu = "*Nordic Forum (Sabis)*\n";
