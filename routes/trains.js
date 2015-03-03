@@ -1,6 +1,7 @@
 var express = require('express');
 var request = require('request');
 
+var config = require('../config.js');
 var apiKey = require('../secrets').keys.trains;
 
 var router = express.Router();
