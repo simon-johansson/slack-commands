@@ -5,6 +5,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+var index = require('./routes/index');
 var lunch = require('./routes/lunch');
 var trains = require('./routes/trains');
 var yoda = require('./routes/yoda');
@@ -27,6 +28,7 @@ app.get('/*', function(req, res, next) {
   next();
 });
 
+app.use('/', index);
 app.use('/lunch', lunch);
 app.use('/trains', trains);
 app.use('/yoda', yoda);
