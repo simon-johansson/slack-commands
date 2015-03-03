@@ -30,6 +30,8 @@ Site now available on [http://localhost:22666](http://localhost:22666), port aca
 
 ##Integrate with Slack
 
+Rename ``secrets.json.example`` to ``secrets.json`` and fill it with your secrets.
+
 ##Tests
 
 ##License
