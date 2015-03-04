@@ -6,9 +6,9 @@ Collection of slash and Slackbot commands.
 
 | Commands in Slack app           | Description   |
 | ------------------------------- |:-------------:|
-| ``/lunch``                      | Displays todays menus at Upper East, Nordic Forum and Scandic Victora Tower.                  |
-| ``/trains``                     | Displays upcoming train departures from Helenelund.                                           |
-| ``/yoda [sentence to Yodafy]``  | Translates users input sentence to Yodaspeak. WIP, should display message to all in chat room |
+| ``/lunch``                      | Displays todays menus at Upper East, Nordic Forum and Scandic Victora Tower.                   |
+| ``/trains``                     | Displays upcoming train departures from Helenelund.                                            |
+| ``/yoda [sentence to Yodafy]``  | Translates users input sentence to Yodaspeak. WIP, should display message to all in chat room. |
 
 
 ##Development
@@ -24,14 +24,14 @@ npm install
 ```
 npm start
 ```
-Site now available on [http://localhost:22666](http://localhost:22666), port acan be cahnged in ``config.js``
+Site now available on [http://localhost:22666](http://localhost:22666), port can be cahnged in ``config.js``.
 
 ##Deployment
+Rename ``secrets.json.example`` to ``secrets.json`` and fill it with your secrets.
 
 ##Integrate with Slack
-
-Rename ``secrets.json.example`` to ``secrets.json`` and fill it with your secrets.
 
 ##Tests
 
 ##License
+MIT

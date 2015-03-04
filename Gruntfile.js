@@ -10,30 +10,24 @@ module.exports = function(grunt) {
      */
     pkg: grunt.file.readJSON('package.json'),
 
-    dirs: {
-      remote: '/Users/sijo/public_html/slack_commands/'
-    },
-
     sshconfig: {
-      'trolla': grunt.file.readJSON('secrets.json'),
+      'server': grunt.file.readJSON('secrets.json'),
     },
 
     sftp: {
       deploy: {
         files: {
-          // "./": "./**"
           "./": [
             "bin/**",
             "public/**",
             "routes/**",
             "views/**",
-            "*.js",
-            "*.json",
+            "*",
           ]
         },
         options: {
-          config: 'trolla',
-          path: '<%= dirs.remote %>',
+          config: 'server',
+          path: '<%= sshconfig.server.path %>',
           srcBasePath: "./",
           showProgress: true,
           createDirectories: true,
@@ -42,29 +36,45 @@ module.exports = function(grunt) {
     },
 
     sshexec: {
+      options: {
+        config: 'server',
+      },
       start: {
-        options: {
-          config: 'trolla',
-        },
         command: [
-          'cd <%= dirs.remote %>',
+          'cd <%= sshconfig.server.path %>',
           'npm install --production',
           'export NODE_ENV=production',
-          'forever restart slack-commands',
+          'forever start --append --uid <%= pkg.name %> bin/www',
         ].join(' && '),
       },
+      restart: {
+        command: [
+          'cd <%= sshconfig.server.path %>',
+          'npm install --production',
+          'export NODE_ENV=production',
+          'forever restart <%= pkg.name %>',
+        ].join(' && '),
+      },
+    },
+    stop: {
+      command: [
+        'forever stop <%= pkg.name %>',
+      ].join(' && '),
     },
 
   });
 
-  /**
-   * Default Task
-   * run `grunt`
-   */
-  grunt.registerTask('deploy', [
-    'sftp:deploy',
-    'sshexec:start',
-  ]);
+  grunt.registerTask('deploy',
+    function(arg) {
+      var commands = ['sftp:deploy'];
+      if (arg === 'start') {
+        commands.push(['sshexec:start']);
+      } else if (arg === 'restart') {
+        commands.push(['sshexec:restart']);
+      }
+      return grunt.task.run(commands);
+    });
+
 
   /**
    * Load the plugins specified in `package.json`
